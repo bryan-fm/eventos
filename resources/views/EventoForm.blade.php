@@ -66,7 +66,7 @@
     });
 
     $(document).ready(function() {
-        
+        //Verificar Bug de Nao mostrar os objetos do grid
         $('#btn-add-convidado').on('click', function(){
             nome = $('#select_convidado option:selected').text();
             id = $('#select_convidado').val();
