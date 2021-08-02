@@ -7,49 +7,55 @@ use App\User;
 use DB;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Evento;
+use App\Repositories\EventoRepository;
+use Validator;
 
 class EventoController extends Controller
 {
 
+    protected $eventos;
+
+    public function __construct(EventoRepository $eventos)
+    {
+        $this->eventos = $eventos;
+    }
+
     public function AddView()
     {
-        return view('EventoForm');
+        $convidados = User::whereNotIn('id',[Auth::id()])->get();
+        //dd($convidados);
+        return view('EventoForm',['convidados' => $convidados]);
+    }
+
+    public function EditView($id)
+    {
+        $convidados = User::whereNotIn('id',[Auth::id()])->get();
+        $evento = Evento::find($id);
+        return view('EventoForm',
+        ['convidados' => $convidados, 
+        'action' => 'edit',
+        'evento' => $evento]);
     }
 
     public function insert(Request $request)
     {
-        $data = json_decode($request->convidados);
-        try
-        {
-            DB::beginTransaction();
-            $obj = new Evento();
+        $validator = Validator::make($request->all(),[
+            'descricao' => 'required|string',
+            'data' => 'required',
+        ]);
 
-            $obj->descricao  = $request->descricao;
-            $obj->data  = $request->data;
-            $obj->ativo  = 1;
-            $obj->organizador_id  = Auth::id();
-            
-
-            $obj->save();
-        } 
-        catch (\Exception $e)
-        {
-            DB::rollBack();
-            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+        if($validator->fails()) {
+            $errors = $validator->errors();
+            return response()->json(['errors' => $errors, 'success' => false]);
         }
 
-        DB::commit();
-        return response()->json(['success' => true, 'message' => 'Registros Cadastrados com Sucesso!']); 
+        $this->eventos->store($request->all() + ['organizador_id' => Auth::id()]);
+
+        return response()->json(['message' => "Registro salvo com sucesso", 'success' => true]);
     }
 
     public function listar(Request $request)
     {
-        $query = DB::table('eventos AS e')
-            ->join('users', 'users.id', '=', 'e.organizador_id')
-            ->selectRaw("e.id, users.name as organizador, e.descricao, e.data")
-            ->where('users.id', '=', Auth::id())
-            ->get();
-
-        return $query;
+        return $this->eventos->all();
     }
 }

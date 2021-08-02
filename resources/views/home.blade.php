@@ -15,38 +15,45 @@
             </div>
         </div>
     </div>
-
 </div>
 
 <script>
-$('#myGrid').w2grid({
-    name   : 'myGrid',
-    url    : '{{route('listar_evento')}}',
-    name: 'eventosGrid',
-    header: 'Lista de Eventos',
-    msgRefresh: 'Atualizando...',
-    recid:'id',
-    show: {
-            footer: true,
-            toolbar: true,
-            toolbarAdd: true,
-            toolbarDelete: true,
-            toolbarEdit: true,
-            header: true,
-            toolbarColumns: false,
-            searchAll: false,
-            toolbarInput: false
+jQuery(function($) {
+    $().w2destroy("#myGrid");
+    $('#myGrid').w2grid({
+        name   : 'myGrid',
+        url    : '{{route('listar_evento')}}',
+        name: 'eventosGrid',
+        header: 'Lista de Eventos',
+        msgRefresh: 'Atualizando...',
+        recid:'id',
+        show: {
+                footer: true,
+                toolbar: true,
+                toolbarAdd: true,
+                toolbarDelete: true,
+                toolbarEdit: true,
+                header: true,
+                toolbarColumns: false,
+                searchAll: false,
+                toolbarInput: false
+            },
+        columns: [
+            { field: 'id', text: 'Id', size: '30%' },
+            { field: 'organizador', text: 'Organizador', size: '30%' },
+            { field: 'descricao', text: 'Descricao', size: '40%' },
+            { field: 'data', text: 'Data', size: '40%' },
+        ],
+        onAdd: function (event) {
+            window.location.href = '/cadastrarEvento';
         },
-    columns: [
-        { field: 'id', text: 'Id', size: '30%' },
-        { field: 'organizador', text: 'Organizador', size: '30%' },
-        { field: 'descricao', text: 'Descricao', size: '40%' },
-        { field: 'data', text: 'Data', size: '40%' },
-    ],
-    onAdd: function (event) {
-        window.location.href = '/cadastrarEvento';
-    },
-    
+        onEdit: function (event) {
+            var id = event.recid.toString();
+            window.location.href = '/editarEvento/' + id;
+        },
+        
+    });
 });
 </script>
+
 @endsection

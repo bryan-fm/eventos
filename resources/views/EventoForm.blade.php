@@ -26,9 +26,9 @@
                         <label for="select_convidado" class="col-md-4 col-form-label text-md-right">Convidado</label>
                             <div class="form-group col-md-4">
                                 <select id="select_convidado" class="form-control">
-                                    <option value="1" email = "bryanfranca2@hotmail.com">Bryan Franca</option>
-                                    <option value="2" email = "teste2"selected>Valor 2</option>
-                                    <option value="3" email = "teste3">Valor 3</option>
+                                    @foreach ($convidados as $conv)
+                                        <option value="{{$conv->id}}" email = "{{$conv->email}}">{{$conv->name}}</option>
+                                    @endforeach
                                 </select>
                             </div>
                             <div class="form-group col-md-4">
@@ -52,27 +52,35 @@
 </div>
 
 <script>
-
-    $('#convidadosGrid').w2grid({
-        name   : 'convidadosGrid',
-        msgRefresh: 'Atualizando...',
-        recid:'id',
-        columns: [
-            { field: 'id', text: 'Id', size: '30%' },
-            { field: 'name', text: 'Nome', size: '30%' },
-            { field: 'email', text: 'Email', size: '40%' },
-        ],
-        
-    });
-
-    $(document).ready(function() {
+    jQuery(function($) {
+        $('#convidadosGrid').w2grid({
+            name   : 'convidadosGrid',
+            msgRefresh: 'Atualizando...',
+            recid:'id',
+            columns: [
+                { field: 'id', text: 'Id', size: '30%' },
+                { field: 'nome', text: 'Nome', size: '30%' },
+                { field: 'email', text: 'Email', size: '40%' },
+            ],
+            
+        });
         //Verificar Bug de Nao mostrar os objetos do grid
         $('#btn-add-convidado').on('click', function(){
             nome = $('#select_convidado option:selected').text();
             id = $('#select_convidado').val();
             email = $('#select_convidado option:selected').attr('email');
-            w2ui['convidadosGrid'].add({ recid: id, nome: nome, email:email});
+            w2ui['convidadosGrid'].add({ id: id, nome: nome, email:email});
         });
+
+
+        @if($action == 'edit' || $action == 'view')
+        {
+            $('#descricao').val('{{$evento->descricao}}');
+            $('#data').val('{{$evento->data}}');
+
+        }
+        @endif
+
 
         $('#btn-add-edit').on('click', function(){
 
@@ -92,9 +100,20 @@
                 data:{
                     descricao,data,convidados
                 },
-            success: function(result){
-                alert("Registro Salvo")
-            }});
+            success: function(resposta){
+
+                if (resposta.success){
+                    alert(resposta.message, true);
+                    window.location.href = '/';
+                }else{
+                    alert(JSON.stringify(resposta.errors));
+                }
+            },
+            error: function(error)
+            {
+                alert(error)
+            }
+            });
         });
 
     });
