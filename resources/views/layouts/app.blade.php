@@ -18,7 +18,9 @@
     <link href="https://unpkg.com/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
     <link rel="stylesheet" type="text/css" href="http://w2ui.com/src/w2ui-1.5.min.css" />
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="//code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
     <script type="text/javascript" src="http://w2ui.com/src/w2ui-1.5.min.js"></script>
+    
 
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">

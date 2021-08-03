@@ -100,6 +100,8 @@
         });
         $('#grid_convidadosGrid_rec_more').remove();
 
+        $( "#data" ).datepicker({ dateFormat: 'dd/mm/yy' })
+
         $('#btn-add-convidado').on('click', function(){
             recid = 'NEW_' + Math.floor(100000 + Math.random() * 900000);
             nome = $('#select_convidado option:selected').text();
@@ -111,8 +113,9 @@
 
         @if($action == 'edit')
         {
+            data = "{{Carbon\Carbon::parse($evento->data)->format('d/m/Y')}}"
             $('#descricao').val('{{$evento->descricao}}');
-            $('#data').val('{{$evento->data}}');
+            $('#data').val(data);
             w2ui['convidadosGrid'].url = '{{route('listar_convidados',['id' => $evento->id])}}';
             w2ui['convidadosGrid'].reload();
         }
@@ -125,6 +128,18 @@
             data = $('#data').val();
             convidados = JSON.stringify(w2ui['convidadosGrid'].records);
 
+            @if ($action == 'add')
+
+                url =  "{{route('add_edit_evento',['id' => 0])}}"
+
+            @endif
+
+             @if ($action == 'edit')
+
+                url =  "{{route('add_edit_evento',['id' => $evento->id])}}"
+
+            @endif
+
             $.ajaxSetup({
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -133,7 +148,7 @@
 
             $.ajax({
                 method: "POST",
-                url: "{{route('add_edit_evento',['id' => $evento->id ? $evento->id : 0])}}", 
+                url: url, 
                 data:{
                     descricao,data,convidados
                 },
