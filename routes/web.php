@@ -20,7 +20,8 @@ Auth::routes();
 Route::get('/home', 'HomeController@index')->name('home');
 
 Route::get('/listarEventos', 'EventoController@listar')->name('listar_evento')->middleware('auth');
+Route::get('/listarConvidados/{id}', 'EventoController@listarConvidados')->name('listar_convidados')->middleware('auth');
 
 Route::get('/cadastrarEvento', 'EventoController@AddView')->name('view_add_evento')->middleware('auth');
 Route::get('/editarEvento/{id}', 'EventoController@EditView')->name('view_edit_evento')->middleware('auth');
-Route::post('/salvarNovoEvento', 'EventoController@insert')->name('add_evento')->middleware('auth');
+Route::post('/salvarNovoEvento/{id}', 'EventoController@save')->name('add_edit_evento')->middleware('auth');

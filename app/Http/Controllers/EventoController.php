@@ -30,14 +30,14 @@ class EventoController extends Controller
     public function EditView($id)
     {
         $convidados = User::whereNotIn('id',[Auth::id()])->get();
-        $evento = Evento::find($id);
+        $evento = $this->eventos->get($id);
         return view('EventoForm',
         ['convidados' => $convidados, 
         'action' => 'edit',
         'evento' => $evento]);
     }
 
-    public function insert(Request $request)
+    public function save(Request $request, $id = 0)
     {
         $validator = Validator::make($request->all(),[
             'descricao' => 'required|string',
@@ -48,14 +48,18 @@ class EventoController extends Controller
             $errors = $validator->errors();
             return response()->json(['errors' => $errors, 'success' => false]);
         }
+        $retorno = $this->eventos->store($request->all() + ['organizador_id' => Auth::id()],$id);
 
-        $this->eventos->store($request->all() + ['organizador_id' => Auth::id()]);
-
-        return response()->json(['message' => "Registro salvo com sucesso", 'success' => true]);
+        return response()->json(['message' => $retorno->original['message'], 'success' => $retorno->original['success']]);
     }
 
     public function listar(Request $request)
     {
         return $this->eventos->all();
+    }
+
+    public function listarConvidados($id)
+    {
+        return $this->eventos->convidados($id);
     }
 }

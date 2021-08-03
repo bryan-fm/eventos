@@ -56,28 +56,65 @@
         $('#convidadosGrid').w2grid({
             name   : 'convidadosGrid',
             msgRefresh: 'Atualizando...',
+            autoLoad: false,
             recid:'id',
+            show: {
+                footer: true,
+                toolbar: true,
+                toolbarAdd: false,
+                toolbarDelete: false,
+                toolbarEdit: false,
+                header: false,
+                toolbarColumns: false,
+                searchAll: false,
+                toolbarInput: false,
+                toolbarReload: false,
+            },
             columns: [
-                { field: 'id', text: 'Id', size: '30%' },
+                { field: 'id', text: 'Id', hidden: true },
+                { field: 'usuario_id', text: 'Id Usuario', size: '30%' },
                 { field: 'nome', text: 'Nome', size: '30%' },
                 { field: 'email', text: 'Email', size: '40%' },
             ],
+            toolbar: {
+            id: toolbar,
+            items: [
+                { type: 'button', id: 'btn-del', caption: 'Deletar', icon: 'fa fa-times', disabled: true},
+            ],
+                onClick: function (target, data)   
+                {
+                    if (target == 'btn-del'){
+                        var id = w2ui[this.owner.name].getSelection().toString();
+                        w2ui['convidadosGrid'].remove(id);
+                        $('#grid_convidadosGrid_rec_more').remove();
+                    }
+                }
+            },
+            onSelect: function(event) {
+                this.toolbar.enable("btn-del");
+            },
+            onUnselect: function(event) {
+                this.toolbar.disable("btn-del");
+            },
             
         });
-        //Verificar Bug de Nao mostrar os objetos do grid
+        $('#grid_convidadosGrid_rec_more').remove();
+
         $('#btn-add-convidado').on('click', function(){
+            recid = 'NEW_' + Math.floor(100000 + Math.random() * 900000);
             nome = $('#select_convidado option:selected').text();
-            id = $('#select_convidado').val();
+            usuario_id = $('#select_convidado').val();
             email = $('#select_convidado option:selected').attr('email');
-            w2ui['convidadosGrid'].add({ id: id, nome: nome, email:email});
+            w2ui['convidadosGrid'].add({ recid: recid, nome: nome, usuario_id: usuario_id, email:email});
+            $('#grid_convidadosGrid_rec_more').remove();
         });
 
-
-        @if($action == 'edit' || $action == 'view')
+        @if($action == 'edit')
         {
             $('#descricao').val('{{$evento->descricao}}');
             $('#data').val('{{$evento->data}}');
-
+            w2ui['convidadosGrid'].url = '{{route('listar_convidados',['id' => $evento->id])}}';
+            w2ui['convidadosGrid'].reload();
         }
         @endif
 
@@ -96,7 +133,7 @@
 
             $.ajax({
                 method: "POST",
-                url: "{{route('add_evento')}}", 
+                url: "{{route('add_edit_evento',['id' => $evento->id ? $evento->id : 0])}}", 
                 data:{
                     descricao,data,convidados
                 },
@@ -106,7 +143,7 @@
                     alert(resposta.message, true);
                     window.location.href = '/';
                 }else{
-                    alert(JSON.stringify(resposta.errors));
+                    alert(JSON.stringify(resposta));
                 }
             },
             error: function(error)
